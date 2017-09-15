@@ -9,6 +9,7 @@ class TalkerUsingSerial : public Talker {
     void setup();
     void loop();
     void cancel();
+    void done();
     boolean isTalking();
     void sayWelcomePart1();
     void sayWelcomePart2();

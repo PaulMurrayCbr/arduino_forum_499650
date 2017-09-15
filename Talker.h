@@ -37,6 +37,12 @@ class Talker {
     virtual void cancel() = 0;
 
     /**
+        when the talkng is done, this function might be used to turn speakers off, that kind of thing.
+    */
+
+    virtual void done() = 0;
+
+    /**
        A talker takes a while to finish talking. This function tells soeone using the talker
        if the current phrase has been finished.
     */

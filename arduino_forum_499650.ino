@@ -1,6 +1,7 @@
 
 #include "Talker.h"
 #include "TalkerUsingSerial.h"
+#include "SentenceMaker.h"
 
 // just a simple 50ms debouncing button class
 
@@ -141,9 +142,15 @@ uint32_t state_ms;
 const uint32_t adjustingTimeout_ms = 5000;
 const uint32_t waitbeforestandbyTimeout_ms = 5000;
 
+
 ////////////////  PINOUT  //////////////////////////
 
+
+// TODO - When you have TalkerUsingSoundcard written, substitutte that in place of TalkerUsingSerial here
+
 TalkerUsingSerial talker;
+
+SentenceMaker sentenceMaker(talker);
 
 Button buttonUp(11), buttonDown(10);
 FlashingLED ledUp(6), ledDown(5);
@@ -157,9 +164,12 @@ void setup() {
   ledDown.setup();
   burner.setup();
   talker.setup();
+  sentenceMaker.setup();
   
   ledUp.setFlashing(false);
   ledDown.setFlashing(false);
+
+  sentenceMaker.sayWelcomeMessage(195);
 }
 
 void loop() {
@@ -169,5 +179,6 @@ void loop() {
   ledDown.loop();
   burner.loop();
   talker.loop();
+  sentenceMaker.loop();
   
 }

@@ -7,13 +7,19 @@ void TalkerUsingSerial::setup() {
 }
 
 void TalkerUsingSerial::loop() {
-  if (!saying || !pgm_read_byte_near(saying) || (millis() - saying_ms) < 100) return;
+  if (!saying || !pgm_read_byte_near(saying) || (millis() - saying_ms) < 50) return;
 
   Serial.print((char)pgm_read_byte_near(saying++));
   saying_ms = millis();
 }
 
-void TalkerUsingSerial::cancel() {}
+void TalkerUsingSerial::cancel() {
+  Serial.println();
+}
+
+void TalkerUsingSerial::done() {
+  Serial.println();
+}
 
 boolean TalkerUsingSerial::isTalking() {
   return saying && pgm_read_byte_near(saying);
