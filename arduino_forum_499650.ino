@@ -1,4 +1,7 @@
 
+#include "Talker.h"
+#include "TalkerUsingSerial.h"
+
 // just a simple 50ms debouncing button class
 
 class Button {
@@ -125,7 +128,22 @@ class Burner {
     }
 };
 
+// Main app state and variables
+
+enum State {
+  STANDBY, 
+  ADJUSTING, 
+  WAIT_BEFORE_STANDBY
+} state = STANDBY;
+
+uint32_t state_ms;
+
+const uint32_t adjustingTimeout_ms = 5000;
+const uint32_t waitbeforestandbyTimeout_ms = 5000;
+
 ////////////////  PINOUT  //////////////////////////
+
+TalkerUsingSerial talker;
 
 Button buttonUp(11), buttonDown(10);
 FlashingLED ledUp(6), ledDown(5);
@@ -133,25 +151,23 @@ Burner burner(A0, 7);
 
 
 void setup() {
-  // put your setup code here, to run once:
-
   buttonUp.setup();
   buttonDown.setup();
   ledUp.setup();
   ledDown.setup();
   burner.setup();
+  talker.setup();
+  
   ledUp.setFlashing(false);
   ledDown.setFlashing(false);
 }
 
 void loop() {
-  burner.loop();
   buttonUp.loop();
   buttonDown.loop();
   ledUp.loop();
   ledDown.loop();
-
-
-  // put your main code here, to run repeatedly:
-
+  burner.loop();
+  talker.loop();
+  
 }
