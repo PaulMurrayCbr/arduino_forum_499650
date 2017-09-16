@@ -15,10 +15,7 @@ class TalkerUsingSerial : public Talker {
     void sayWelcomePart2();
     void saySignoffPart1();
     void saySignoffPart2();
-    void sayMinus();
-    void sayPoint();
-    void sayZeroToNineteen(int n);
-    void sayTwentyToNinety(int n);
+    void sayNumber(int number, boolean pointFive); 
 
   private:
     void say(const char  * PROGMEM s);

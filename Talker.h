@@ -55,11 +55,8 @@ class Talker {
     virtual void saySignoffPart1() = 0; // The new set point is
     virtual void saySignoffPart2() = 0; // degrees.
 
-    virtual void sayMinus() = 0; // "minus" - although we are not going to need that
-    virtual void sayPoint() = 0; // "point" - usually point five.
-
-    virtual void sayZeroToNineteen(int n) = 0; // "zero" "one" "two" ... "eleven", "twelve" ... etc
-    virtual void sayTwentyToNinety(int n) = 0; // "twenty", "thirty", "forty" ... etc
+    // will say a number between 10 and 30 in increments of .5 degrees
+    virtual void sayNumber(int number, boolean pointFive) = 0; 
 
 };
 

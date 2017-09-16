@@ -28,9 +28,6 @@ void TalkerUsingSoundcard::sayWelcomePart2() {}
 void TalkerUsingSoundcard::saySignoffPart1() {}
 void TalkerUsingSoundcard::saySignoffPart2() {}
 
-void TalkerUsingSoundcard::sayMinus() {}
-void TalkerUsingSoundcard::sayPoint() {}
+void TalkerUsingSoundcard::sayNumber(int number, boolean pointFive) {}
 
-void TalkerUsingSoundcard::sayZeroToNineteen(int n) {}
-void TalkerUsingSoundcard::sayTwentyToNinety(int n) {}
 

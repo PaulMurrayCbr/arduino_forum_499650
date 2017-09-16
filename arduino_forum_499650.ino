@@ -169,7 +169,7 @@ void setup() {
   ledUp.setFlashing(false);
   ledDown.setFlashing(false);
 
-  sentenceMaker.sayWelcomeMessage(195);
+  sentenceMaker.sayWelcomeMessage(19.5);
 }
 
 void loop() {

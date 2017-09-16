@@ -19,9 +19,9 @@ class SentenceMaker {
     void setup();
     void loop();
 
-    void sayWelcomeMessage(int temp_dC);
-    void sayAdjustingMessage(int temp_dC);
-    void saySignoffMessage(int temp_dC);
+    void sayWelcomeMessage(float temp_C);
+    void sayAdjustingMessage(float temp_C);
+    void saySignoffMessage(float temp_C);
     void cancel();
 
   private:
@@ -34,11 +34,14 @@ class SentenceMaker {
       STANDBY,
       BEGIN,
       PART_1,
-      MINUS, TENS, UNITS, POINT, DECIMAL,
+      NUMBER,
       PART_2
     } state = STANDBY;
 
-    int temp_dC;
+    int temp_number;
+    int temp_pointFive;
+
+    void roundTemp(float temp_C);
 };
 
 #endif
