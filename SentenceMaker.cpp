@@ -79,7 +79,7 @@ void SentenceMaker::sayAdjustingMessage(float temp_C) {
 
 void SentenceMaker::saySignoffMessage(float temp_C) {
   talker.cancel();
-  message = ADJUSTING;
+  message = SIGNOFF;
   roundTemp(temp_C);
   state = BEGIN;
 }

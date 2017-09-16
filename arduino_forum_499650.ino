@@ -3,13 +3,25 @@
 #include "TalkerUsingSerial.h"
 #include "SentenceMaker.h"
 
+//#define DEBUG
+
+#ifdef DEBUG
+#define log(x) Serial.println(x)
+// 'n' means 'no end of line'
+#define logn(x) Serial.print(x)
+#else
+// log statements MUST NOT HAVE SIDE EFFECTS
+#define log(x)
+#define logn(x)
+#endif
+
 // just a simple 50ms debouncing button class
 
 class Button {
     const byte pin;
     byte state;
     byte prevState;
-    byte debounce_ms; // we only need this to count to 50
+    uint32_t debounce_ms;
 
   public:
 
@@ -21,9 +33,9 @@ class Button {
 
     void loop() {
       prevState = state;
-      if (((byte)millis()) - debounce_ms >= 50) {
+      if (millis() - debounce_ms >= 50) {
         state = digitalRead(pin);
-        if (state != prevState) debounce_ms = (byte)millis();
+        if (state != prevState) debounce_ms = millis();
       }
     }
 
@@ -74,7 +86,7 @@ class Burner {
     const byte burnerPin;
 
     // THIS IS IN TENTHS OF A DEGREE!!!!
-    const float maxTemp_C = 30; 
+    const float maxTemp_C = 30;
     const float minTemp_C = 10;
     const float hysteresis_C = .5; // half a degree
     float targetTemp_C = 18; // 18.0 degrees - a reasonable starting point
@@ -88,16 +100,34 @@ class Burner {
     }
 
     void loop() {
-      int temp_C = getSensorTemp_C();
+      float temp_C = getSensorTemp_C();
       if (temp_C < targetTemp_C - hysteresis_C) {
+#ifdef DEBUG
+        if (digitalRead(burnerPin) != HIGH) {
+          logn("Sensed burner temp is ");
+          logn(temp_C);
+          logn(" setpoint is ");
+          logn(targetTemp_C);
+          log(" turning burner ON.");
+        }
+#endif
         digitalWrite(burnerPin, HIGH);
       }
       else if (temp_C > targetTemp_C + hysteresis_C) {
+#ifdef DEBUG
+        if (digitalRead(burnerPin) != LOW) {
+          logn("Sensed burner temp is ");
+          logn(temp_C);
+          logn(" setpoint is ");
+          logn(targetTemp_C);
+          log(" turning burner OFF.");
+        }
+#endif
         digitalWrite(burnerPin, LOW);
       }
     }
 
-    int getTargetTemp_C() {
+    float getTargetTemp_C() {
       return targetTemp_C;
     }
 
@@ -133,12 +163,12 @@ class Burner {
 // Main app state and variables
 
 enum State {
-  STANDBY, 
-  ADJUSTING, 
+  STANDBY,
+  ADJUSTING,
   WAIT_BEFORE_STANDBY
 } state = STANDBY;
 
-uint32_t state_ms;
+uint32_t timeout_ms;
 
 const uint32_t adjustingTimeout_ms = 5000;
 const uint32_t waitbeforestandbyTimeout_ms = 5000;
@@ -166,11 +196,10 @@ void setup() {
   burner.setup();
   talker.setup();
   sentenceMaker.setup();
-  
+
   ledUp.setFlashing(false);
   ledDown.setFlashing(false);
 
-  sentenceMaker.sayWelcomeMessage(19.5);
 }
 
 void loop() {
@@ -182,4 +211,59 @@ void loop() {
   talker.loop();
   sentenceMaker.loop();
 
+  boolean button = buttonUp.falling() || buttonDown.falling();
+
+  if (button) {
+    log("got a button press");
+  }
+
+  // we time the timeoust from the most recent button press or from
+  // when the talker finishes talking
+  if (button || talker.isTalking()) {
+    timeout_ms = millis();
+  }
+
+  switch (state) {
+    case STANDBY:
+      if (button) {
+        sentenceMaker.sayWelcomeMessage(burner.getTargetTemp_C());
+        ledUp.setFlashing(true);
+        ledDown.setFlashing(true);
+        log("| - moving into adjusting state");
+        state = ADJUSTING;
+      }
+      break;
+    case ADJUSTING:
+      if (button) {
+        if (buttonUp.falling()) burner.increaseTargetTemp();
+        if (buttonDown.falling()) burner.decreaseTargetTemp();
+        log("| - new adjusting message");
+        sentenceMaker.sayAdjustingMessage(burner.getTargetTemp_C());
+      }
+      else {
+        if (millis() - timeout_ms >= adjustingTimeout_ms) {
+          log("| - moving into wait before standing by");
+          sentenceMaker.saySignoffMessage(burner.getTargetTemp_C());
+          timeout_ms = millis();
+          state = WAIT_BEFORE_STANDBY;
+        }
+      }
+      break;
+    case WAIT_BEFORE_STANDBY:
+      if (button) {
+        log("| - cancelling standby");
+        sentenceMaker.sayAdjustingMessage(burner.getTargetTemp_C());
+        state = ADJUSTING;
+      }
+      else {
+        if (millis() - timeout_ms >= waitbeforestandbyTimeout_ms) {
+          ledUp.setFlashing(false);
+          ledDown.setFlashing(false);
+          state = STANDBY;
+          log("| - standing by");
+        }
+      }
+      break;
+  }
 }
+
