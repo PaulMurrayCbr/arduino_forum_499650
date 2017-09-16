@@ -61,8 +61,7 @@ class FlashingLED {
 
 /**
     this object works the furnace. It has a sensor pin, a burner output pin, and a current setpoint value.
-   temperatures are measured in tenths of a degree centigrade, which I annotate as 'dC'. I do this so that we can get
-   .5 of a degree without having roundoff errors and things like that.
+   temperatures are measured in degrees centigrade, which I annotate as 'C'.
 */
 
 class Burner {
@@ -75,10 +74,10 @@ class Burner {
     const byte burnerPin;
 
     // THIS IS IN TENTHS OF A DEGREE!!!!
-    const int maxTemp_dC = 350; // 35.0 degrees
-    const int minTemp_dC = 50; // 5.0 degrees
-    const int hysteresis_dC = 5; // half a degree
-    int targetTemp_dC = 180; // 18.0 degrees - a reasonable starting point
+    const float maxTemp_C = 30; 
+    const float minTemp_C = 10;
+    const float hysteresis_C = .5; // half a degree
+    float targetTemp_C = 18; // 18.0 degrees - a reasonable starting point
 
   public:
     Burner(byte sensorPinAttach, byte burnerPinAttach):
@@ -89,25 +88,27 @@ class Burner {
     }
 
     void loop() {
-      int temp_dC = getSensorTemp_dC();
-      if (temp_dC < targetTemp_dC - hysteresis_dC) {
+      int temp_C = getSensorTemp_C();
+      if (temp_C < targetTemp_C - hysteresis_C) {
         digitalWrite(burnerPin, HIGH);
       }
-      else if (temp_dC > targetTemp_dC + hysteresis_dC) {
+      else if (temp_C > targetTemp_C + hysteresis_C) {
         digitalWrite(burnerPin, LOW);
       }
     }
 
-    int getTargetTemp_dC() {
-      return targetTemp_dC;
+    int getTargetTemp_C() {
+      return targetTemp_C;
     }
 
+    // I rely on the fact that .5 is a power of 2 and so a floating point value can represent it exactly.
+
     void increaseTargetTemp() {
-      if (targetTemp_dC < maxTemp_dC) targetTemp_dC += 5;
+      if (targetTemp_C < maxTemp_C) targetTemp_C += .5;
     }
 
     void decreaseTargetTemp() {
-      if (targetTemp_dC > minTemp_dC) targetTemp_dC -= 5;
+      if (targetTemp_C > minTemp_C) targetTemp_C -= .5;
     }
 
   protected:
@@ -120,12 +121,12 @@ class Burner {
 
     */
 
-    int getSensorTemp_dC() {
+    float getSensorTemp_C() {
       // I have a potentiometer on the analog input. I'll just scale it so that the sensed temp
       // winds up somewhere between zero and 50-ish.
-      // analog inputs lie in a range 0 to 1023, so I'll just divide by 2.
+      // analog inputs lie in a range 0 to 1023, so I'll just divide by 20.
 
-      return analogRead(sensorPin) / 2;
+      return analogRead(sensorPin) / 20.0;
     }
 };
 
@@ -180,5 +181,5 @@ void loop() {
   burner.loop();
   talker.loop();
   sentenceMaker.loop();
-  
+
 }
