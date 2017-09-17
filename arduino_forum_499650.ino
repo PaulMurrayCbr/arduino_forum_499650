@@ -85,7 +85,6 @@ class Burner {
 
     const byte burnerPin;
 
-    // THIS IS IN TENTHS OF A DEGREE!!!!
     const float maxTemp_C = 30;
     const float minTemp_C = 10;
     const float hysteresis_C = .5; // half a degree

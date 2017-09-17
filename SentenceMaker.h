@@ -39,7 +39,7 @@ class SentenceMaker {
     } state = STANDBY;
 
     int temp_number;
-    int temp_pointFive;
+    boolean temp_pointFive;
 
     void roundTemp(float temp_C);
 };

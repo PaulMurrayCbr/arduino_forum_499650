@@ -4,15 +4,6 @@
 
    We have two implementations - a TalkerUsingSerial, which simulates what a soundcard does by
    spitting out text slowly to the serial output, and a TalkerUsingSoundcard, which is not written yet.
-
-   The spec I am working to is o the messageboad thread:
-
-   - press any button. Get a 'welcome chime' and the current space temp read out e.g. "Bing bong, it is twenty one point five degrees"
-   - at 'welcome chime' both LEDS (red & blue) would start flashing and a voice would say,
-     "To raise the temperature press the red button, to lower the temperature press the blue button"
-   - when either button is pressed the set point is moved up/down by 0.5 degrees centigrade and the new set point temp is read out.
-     If the button is pressed quickly, the current announcement is curtailed and the new value read out.
-   - after 5 seconds of no further presses it announces, "The new set point is XX.X)
 */
 
 #ifndef TALKER_H
@@ -37,14 +28,17 @@ class Talker {
     virtual void cancel() = 0;
 
     /**
-        when the talkng is done, this function might be used to turn speakers off, that kind of thing.
+        SentenceMaker calls this at the end of the sentence. A talker might use that to - for instance
+        - turn speakers off. 
+        Really, it's here because we want our TalkerUSingSerial to put a line break at the end of
+        a sentence. But, it still might be useful for putting a soundcard version to sleep.  
     */
 
     virtual void done() = 0;
 
     /**
-       A talker takes a while to finish talking. This function tells soeone using the talker
-       if the current phrase has been finished.
+       A talker takes a while to finish talking. SentenceMaker polls this function to find out
+       if the current phrase has been finished. This seems to be how soundcard libraries work.
     */
 
     virtual boolean isTalking() = 0;
@@ -55,7 +49,7 @@ class Talker {
     virtual void saySignoffPart1() = 0; // The new set point is
     virtual void saySignoffPart2() = 0; // degrees.
 
-    // will say a number between 10 and 30 in increments of .5 degrees
+    /** will say a number between 10 and 30 in increments of .5 degrees */
     virtual void sayNumber(int number, boolean pointFive) = 0; 
 
 };
